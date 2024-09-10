@@ -26,6 +26,9 @@ COPY ros2.repos.1 /root/humble_ws/src/
 COPY ros2_gz.repos.1 /root/humble_ws/src/
 
 # Install ardupilot
+
+# TODO: NEED TO SWITCH TO A DIFFERENT USER...
+
 RUN cd $HOME/humble_ws/src && \
     vcs import --recursive < ros2.repos.1 && \
     rosdep update && \
