@@ -13,15 +13,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Gazebo Garden.
 RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
-    apt-get update && \
-    apt-get install gz-garden && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    gz-garden && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Install ardupilot_ros
 RUN mkdir -p $HOME/humble_ws/src && \
     cd $HOME/humble_ws && \
-    git clone git@github.com:ardupilot/ardupilot_ros.git src && \
+    git clone https://github.com/ArduPilot/ardupilot_ros.git -b humble src && \
     rosdep install --from-paths src --ignore-src -r && \
     source /opt/ros/${ROS_DISTRO}/setup.bash && \
     colcon build && \
