@@ -7,6 +7,7 @@ SHELL ["/bin/bash", "-lc"]
 # Install basic apt dependencies.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    pip \
     gnupg \
     lsb-release \
     python3-vcstools \
@@ -22,27 +23,32 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyri
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY ros2.repos.1 /root/humble_ws/src/
-COPY ros2_gz.repos.1 /root/humble_ws/src/
+
 
 # Create new user
-RUN gropuadd -r ros2 && \
-    useradd -r -m -g ros2 -s /vin/bash ros2 && \
-    echo "ros2 ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ros2 && \
-    USER ros2
+RUN groupadd -r ros2 && \
+    useradd -r -m -g ros2 -s /bin/bash ros2 && \
+    echo "ros2 ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ros2
+USER ros2
 
+RUN mkdir -p /home/ros2/humble_ws/src
+
+COPY ros2.repos.1 /home/ros2/humble_ws/src/
+COPY ros2_gz.repos.1 /home/ros2/humble_ws/src/
+
+RUN pip install black
 
 # Install ardupilot
-RUN cd $HOME/humble_ws/src && \
-    vcs import --recursive < ros2.repos.1 && \
-    rosdep update && \
-    cd .. && \
-    rosdep install --from-paths src --ignore-src -r && \
-    source /opt/ros/${ROS_DISTRO}/setup.bash && \
-    colcon build --packages-up-to ardupilot_dds_tests && \
-    source /root/humble_ws/install/setup.bash && \
-    echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc && \
-    echo "source /root/humble_ws/install/setup.bash" >> /root/.bashrc
+# RUN cd /home/ros2/humble_ws/src/ && \
+#     vcs import --recursive < ros2.repos.1 && \
+#     rosdep update && \
+#     cd .. && \
+#     rosdep install --from-paths src --ignore-src -r && \
+#     source /opt/ros/${ROS_DISTRO}/setup.bash && \
+#     colcon build --packages-up-to ardupilot_dds_tests && \
+#     source /home/ros2/humble_ws/install/setup.bash && \
+#     echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc && \
+#     echo "source /root/humble_ws/install/setup.bash" >> /root/.bashrc
 
 
 # Install ardupilot_ros
