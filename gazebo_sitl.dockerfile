@@ -25,10 +25,14 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyri
 COPY ros2.repos.1 /root/humble_ws/src/
 COPY ros2_gz.repos.1 /root/humble_ws/src/
 
+# Create new user
+RUN gropuadd -r ros2 && \
+    useradd -r -m -g ros2 -s /vin/bash ros2 && \
+    echo "ros2 ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ros2 && \
+    USER ros2
+
+
 # Install ardupilot
-
-# TODO: NEED TO SWITCH TO A DIFFERENT USER...
-
 RUN cd $HOME/humble_ws/src && \
     vcs import --recursive < ros2.repos.1 && \
     rosdep update && \
