@@ -8,6 +8,7 @@
 
 ## 📝 Build docker images
 ```shell
+docker build -t gazebo_sitl:humble_garden -f gazebo_sitl.dockerfile .
 docker-compose build
 ```
 ## 🚀 Run simulation 

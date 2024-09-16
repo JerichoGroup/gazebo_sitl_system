@@ -1,69 +1,73 @@
-FROM ros:humble-ros-base-jammy
+FROM osrf/ros:humble-desktop-full
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-lc"]
 
+# Create and switch to new user.
+ARG NEW_USER=ros2
+RUN groupadd -r ${NEW_USER} && \
+    useradd -r -m -g ${NEW_USER} -s /bin/bash ${NEW_USER} && \
+    echo "ros2 ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${NEW_USER}
+USER ${NEW_USER}
+
 # Install basic apt dependencies.
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     curl \
     pip \
     gnupg \
+    cmake \
+    pkg-config \
     lsb-release \
+    build-essential \
     python3-vcstools \
     python3-colcon-common-extensions \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && sudo apt-get clean \
+    && sudo rm -rf /var/lib/apt/lists/*
 
-# Install Gazebo Garden.
-RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    gz-garden && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install apt Gazebo dependencies.
+RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
+    sudo apt-get update && \
+    sudo apt-get install -y \
+      $(sort -u $(find . -iname 'packages-'`lsb_release -cs`'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/gz\|sdf/d' | tr '\n' ' ')
+
+COPY --chown=${NEW_USER} humble_ws /home/${NEW_USER}/humble_ws
+COPY --chown=${NEW_USER} .gazenv /home/${NEW_USER}/.gazenv
+COPY --chown=${NEW_USER} .ardupilot_env /home/${NEW_USER}/.ardupilot_env
+COPY --chown=${NEW_USER} .bash_aliases /home/${NEW_USER}/.bash_aliases
+WORKDIR /home/${NEW_USER}/humble_ws
+
+# Install remaining Gazebo packages from source.
+RUN source ~/.bash_aliases && \
+    cd src && \
+    curl -O https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/master/collection-garden.yaml && \
+    vcs import < collection-garden.yaml
+# Pro gamer move bug fix (added COMPRESSED_JPEG to PixelFormatType in image.hh).
+COPY --chown=${NEW_USER} Image.hh /home/${NEW_USER}/humble_ws/src/gz-common/graphics/include/gz/common/Image.hh
+RUN colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
+
+# Install ardupilot & micro-ROS-Agent.
+RUN source ~/.bash_aliases && \
+    cd src && \
+    vcs import --recursive < ros2.repos.adjusted && \
+    rosdep update && \
+    cd .. && \
+    rosdep install --from-paths src --ignore-src -r && \
+    colcon build --packages-up-to ardupilot_dds_tests && \
+    source /home/ros2/humble_ws/install/setup.bash && \
+
+# Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf.
+RUN cd src && \
+    vcs import --recursive < ros2_gz.repos.adjusted && \
+    rosdep update && \
+    cd .. && \
+    rosdep install --from-paths src --ignore-src -r && \
+    colcon build --packages-up-to ardupilot_dds_tests && \
+    source /home/ros2/humble_ws/install/setup.bash && \
+    source ~/humble_ws/install/setup.bash
 
 
-
-# Create new user
-RUN groupadd -r ros2 && \
-    useradd -r -m -g ros2 -s /bin/bash ros2 && \
-    echo "ros2 ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ros2
-USER ros2
-
-RUN mkdir -p /home/ros2/humble_ws/src
-
-COPY ros2.repos.1 /home/ros2/humble_ws/src/
-COPY ros2_gz.repos.1 /home/ros2/humble_ws/src/
-
-RUN pip install black
-
-# Install ardupilot
-# RUN cd /home/ros2/humble_ws/src/ && \
-#     vcs import --recursive < ros2.repos.1 && \
-#     rosdep update && \
-#     cd .. && \
-#     rosdep install --from-paths src --ignore-src -r && \
-#     source /opt/ros/${ROS_DISTRO}/setup.bash && \
-#     colcon build --packages-up-to ardupilot_dds_tests && \
-#     source /home/ros2/humble_ws/install/setup.bash && \
-#     echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc && \
-#     echo "source /root/humble_ws/install/setup.bash" >> /root/.bashrc
-
-
-# Install ardupilot_ros
-#RUN mkdir -p $HOME/humble_ws/src && \
-#    cd $HOME/humble_ws && \
-#    git clone https://github.com/ArduPilot/ardupilot_ros.git -b humble src && \
-#    rosdep install --from-paths src --ignore-src -r && \
-#    source /opt/ros/${ROS_DISTRO}/setup.bash && \
-#    colcon build && \
-#    source /root/humble_ws/install/setup.bash && \
-#    echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> $HOME/.bashrc && \
-#    echo "source /root/humble_ws/install/setup.bash" >> $HOME/.bashrc
-#
-#WORKDIR $HOME/humble_ws
-#
 ## Install ardupilot_gazebo plugin apt dependencies.
 #RUN apt-get update && apt-get install -y --no-install-recommends \
 #    libgz-sim7-dev \
