@@ -45,27 +45,28 @@ RUN source ~/.bash_aliases && \
     vcs import < collection-garden.yaml
 # Pro gamer move bug fix (added COMPRESSED_JPEG to PixelFormatType in image.hh).
 COPY --chown=${NEW_USER} Image.hh /home/${NEW_USER}/humble_ws/src/gz-common/graphics/include/gz/common/Image.hh
-RUN colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
-
-# Install ardupilot & micro-ROS-Agent.
-RUN source ~/.bash_aliases && \
-    cd src && \
-    vcs import --recursive < ros2.repos.adjusted && \
-    rosdep update && \
-    cd .. && \
-    rosdep install --from-paths src --ignore-src -r && \
-    colcon build --packages-up-to ardupilot_dds_tests && \
-    source /home/ros2/humble_ws/install/setup.bash && \
-
-# Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf.
-RUN cd src && \
-    vcs import --recursive < ros2_gz.repos.adjusted && \
-    rosdep update && \
-    cd .. && \
-    rosdep install --from-paths src --ignore-src -r && \
-    colcon build --packages-up-to ardupilot_dds_tests && \
-    source /home/ros2/humble_ws/install/setup.bash && \
-    source ~/humble_ws/install/setup.bash
+#RUN source ~/.bash_aliases && \
+#    colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
+#
+## Install ardupilot & micro-ROS-Agent.
+#RUN source ~/.bash_aliases && \
+#    cd src && \
+#    vcs import --recursive < ros2.repos.adjusted && \
+#    rosdep update && \
+#    cd .. && \
+#    rosdep install --from-paths src --ignore-src -r && \
+#    colcon build --packages-up-to ardupilot_dds_tests && \
+#    source /home/ros2/humble_ws/install/setup.bash && \
+#
+## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf.
+#RUN cd src && \
+#    vcs import --recursive < ros2_gz.repos.adjusted && \
+#    rosdep update && \
+#    cd .. && \
+#    rosdep install --from-paths src --ignore-src -r && \
+#    colcon build --packages-up-to ardupilot_dds_tests && \
+#    source /home/ros2/humble_ws/install/setup.bash && \
+#    source ~/humble_ws/install/setup.bash
 
 
 ## Install ardupilot_gazebo plugin apt dependencies.
