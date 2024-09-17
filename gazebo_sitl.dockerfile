@@ -25,12 +25,28 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     && sudo apt-get clean \
     && sudo rm -rf /var/lib/apt/lists/*
 
-# Install apt Gazebo dependencies.
+# Install Gazebo Garden.
 RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
-    sudo apt-get update && \
-    sudo apt-get install -y \
-      $(sort -u $(find . -iname 'packages-'`lsb_release -cs`'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/gz\|sdf/d' | tr '\n' ' ')
+    sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    gz-garden && \
+    sudo apt-get clean && \
+    sudo rm -rf /var/lib/apt/lists/*
+
+# Install apt Gazebo dependencies.
+#RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
+#    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
+#    sudo apt-get update && \
+#    sudo apt-get install -y \
+#      $(sort -u $(find . -iname 'packages-'`lsb_release -cs`'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | sed '/gz\|sdf/d' | tr '\n' ' ')
+
+# Install Micro-XRCE-DDS-Gen.
+RUN cd ~ && \
+    git clone https://github.com/eProsima/Micro-XRCE-DDS-Gen.git && \
+    cd Micro-XRCE-DDS-Gen && \
+    git submodule init && \
+    git submodule update && \
+    ./gradlew assemble
 
 COPY --chown=${NEW_USER} humble_ws /home/${NEW_USER}/humble_ws
 COPY --chown=${NEW_USER} .gazenv /home/${NEW_USER}/.gazenv
@@ -39,34 +55,36 @@ COPY --chown=${NEW_USER} .bash_aliases /home/${NEW_USER}/.bash_aliases
 WORKDIR /home/${NEW_USER}/humble_ws
 
 # Install remaining Gazebo packages from source.
-RUN source ~/.bash_aliases && \
-    cd src && \
-    curl -O https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/master/collection-garden.yaml && \
-    vcs import < collection-garden.yaml
-# Pro gamer move bug fix (added COMPRESSED_JPEG to PixelFormatType in image.hh).
-COPY --chown=${NEW_USER} Image.hh /home/${NEW_USER}/humble_ws/src/gz-common/graphics/include/gz/common/Image.hh
-#RUN source ~/.bash_aliases && \
-#    colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
-#
-## Install ardupilot & micro-ROS-Agent.
 #RUN source ~/.bash_aliases && \
 #    cd src && \
+#    curl -O https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/master/collection-garden.yaml && \
+#    vcs import < collection-garden.yaml
+# Pro gamer move bug fix (added COMPRESSED_JPEG to PixelFormatType in image.hh).
+#COPY --chown=${NEW_USER} Image.hh /home/${NEW_USER}/humble_ws/src/gz-common/graphics/include/gz/common/Image.hh
+#RUN source ~/.bash_aliases && \
+#    colcon build --cmake-args -DBUILD_TESTING=OFF --merge-install
+
+# Install ardupilot.
+#RUN source ~/.bash_aliases && \
+#    cd src && \
+#    git clone -b Copter-4.5 https://github.com/ArduPilot/ardupilot.git && \
 #    vcs import --recursive < ros2.repos.adjusted && \
+#    sudo apt update && \
 #    rosdep update && \
 #    cd .. && \
-#    rosdep install --from-paths src --ignore-src -r && \
-#    colcon build --packages-up-to ardupilot_dds_tests && \
-#    source /home/ros2/humble_ws/install/setup.bash && \
+#    rosdep install -y --from-paths src --ignore-src -r && \
+#    colcon build --packages-up-to ardupilot_dds_tests
 #
 ## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf.
-#RUN cd src && \
-#    vcs import --recursive < ros2_gz.repos.adjusted && \
-#    rosdep update && \
-#    cd .. && \
-#    rosdep install --from-paths src --ignore-src -r && \
-#    colcon build --packages-up-to ardupilot_dds_tests && \
-#    source /home/ros2/humble_ws/install/setup.bash && \
-#    source ~/humble_ws/install/setup.bash
+RUN cd src && \
+    sudo apt install wget && \
+    wget https://raw.githubusercontent.com/ArduPilot/ardupilot_gz/main/ros2_gz.repos && \
+    vcs import --recursive < ros2_gz.repos && \
+    sudo apt update && \
+    rosdep update && \
+    cd .. && \
+    rosdep install --rosdistro humble --from-paths src -i -r -y && \
+    colcon build --cmake-args -DBUILD_TESTING=ON
 
 
 ## Install ardupilot_gazebo plugin apt dependencies.
