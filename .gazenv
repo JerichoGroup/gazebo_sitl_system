@@ -1,0 +1,33 @@
+HUMBLE_WS_PATH="${HOME}/humble_ws"
+HUMBLE_WS_INSTALL="${HUMBLE_WS_PATH}/install"
+
+export GZ_VERSION=garden
+export GZ_CONFIG_PATH=\
+/usr/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-cmake3/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-common5/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-fuel_tools8/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-gui7/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-launch6/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-math7/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-msgs9/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-physics6/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-plugin2/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-rendering7/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-sensors7/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-sim7/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-tools2/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-transport12/share/gz:\
+${HUMBLE_WS_INSTALL}/gz-utils2/share/gz:\
+${HUMBLE_WS_INSTALL}/sdformat13/share/gz
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HUMBLE_WS_INSTALL}/install/gz-rendering7/lib/gz-rendering-7/engine-plugins
+
+export GZ_SIM_SYSTEM_PLUGIN_PATH=${HUMBLE_WS_INSTALL}/ardupilot_gazebo/lib:${GZ_SIM_SYSTEM_PLUGIN_PATH}
+
+export GZ_SIM_RESOURCE_PATH=\
+${HUMBLE_WS_PATH}/ardupilot_gazebo/share/ardupilot_gazebo/models:\
+${HUMBLE_WS_INSTALL}/ardupilot_gazebo/share/ardupilot_gazebo/worlds:\
+${GZ_SIM_RESOURCE_PATH}
+
+export LIBGL_ALWAYS_SOFTWARE=1

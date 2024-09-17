@@ -1,0 +1,5 @@
+HUMBLE_WS_PATH="${HOME}/humble_ws"
+
+export PATH=/opt/gcc-arm-none-eabi-10-2020-q4-major/bin:$PATH
+export PATH=${HUMBLE_WS_PATH}/src/ardupilot/Tools/autotest:$PATH
+export PATH=/usr/lib/ccache:$PATH
