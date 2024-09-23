@@ -14,6 +14,7 @@ USER ${NEW_USER}
 # Install basic apt dependencies.
 RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     curl \
+    wget \
     pip \
     gnupg \
     cmake \
@@ -83,8 +84,31 @@ RUN cd src && \
     sudo apt update && \
     rosdep update && \
     cd .. && \
-    rosdep install --rosdistro humble --from-paths src -i -r -y && \
-    colcon build --cmake-args -DBUILD_TESTING=ON
+    rosdep install --rosdistro humble --from-paths src -i -r -y
+#     # colcon build --cmake-args -DBUILD_TESTING=ON
+
+
+## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf. - Roi
+RUN pip3 install pexpect future mavproxy
+
+RUN sudo apt update && \
+    sudo apt install -y --no-install-recommends libgz-sim7-dev rapidjson-dev && \
+    sudo apt-get install -y --no-install-recommends libcanberra-gtk-module libcanberra-gtk3-module && \
+    sudo apt-get install python3-wxgtk4.0 -y --no-install-recommends && \
+    sudo apt install -y --no-install-recommends libopencv-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl && \
+    cd .. && \
+    git clone https://github.com/ArduPilot/ardupilot_gazebo && \
+    cd ardupilot_gazebo && \
+    export GZ_VERSION=gazren && \
+    sudo bash -c 'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/00-gazebo.list -O /etc/ros/rosdep/sources.list.d/00-gazebo.list' && \
+    rosdep update && \
+    rosdep resolve gz-garden && \
+    rosdep install --from-paths src --ignore-src -y && \
+    sudo ln -s /usr/bin/python3 /usr/bin/python && \
+    echo 'export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH}' >> ~/.bashrc && \
+    echo 'export GZ_SIM_RESOURCE_PATH=$HOME/ardupilot_gazebo/models:$HOME/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH}' >> ~/.bashrc
+
+
 
 
 ## Install ardupilot_gazebo plugin apt dependencies.
