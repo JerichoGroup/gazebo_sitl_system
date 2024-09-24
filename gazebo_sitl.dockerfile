@@ -53,7 +53,6 @@ COPY --chown=${NEW_USER} humble_ws /home/${NEW_USER}/humble_ws
 COPY --chown=${NEW_USER} .gazenv /home/${NEW_USER}/.gazenv
 COPY --chown=${NEW_USER} .ardupilot_env /home/${NEW_USER}/.ardupilot_env
 COPY --chown=${NEW_USER} .bash_aliases /home/${NEW_USER}/.bash_aliases
-WORKDIR /home/${NEW_USER}/humble_ws
 
 # Install remaining Gazebo packages from source.
 #RUN source ~/.bash_aliases && \
@@ -77,37 +76,49 @@ WORKDIR /home/${NEW_USER}/humble_ws
 #    colcon build --packages-up-to ardupilot_dds_tests
 #
 ## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf.
-RUN cd src && \
-    sudo apt install wget && \
-    wget https://raw.githubusercontent.com/ArduPilot/ardupilot_gz/main/ros2_gz.repos && \
-    vcs import --recursive < ros2_gz.repos && \
-    sudo apt update && \
-    rosdep update && \
-    cd .. && \
-    rosdep install --rosdistro humble --from-paths src -i -r -y
+
+WORKDIR /home/${NEW_USER}/humble_ws/src
+
+RUN wget https://raw.githubusercontent.com/ArduPilot/ardupilot_gz/main/ros2_gz.repos && \
+    vcs import --recursive < ros2_gz.repos
+    # sudo apt update && \
+    # rosdep update
+    # cd .. && \
+    # rosdep install --rosdistro humble --from-paths src -i -r -y
 #     # colcon build --cmake-args -DBUILD_TESTING=ON
 
 
 ## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf. - Roi
 RUN pip3 install pexpect future mavproxy
 
-RUN sudo apt update && \
-    sudo apt install -y --no-install-recommends libgz-sim7-dev rapidjson-dev && \
-    sudo apt-get install -y --no-install-recommends libcanberra-gtk-module libcanberra-gtk3-module && \
-    sudo apt-get install python3-wxgtk4.0 -y --no-install-recommends && \
-    sudo apt install -y --no-install-recommends libopencv-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl && \
-    cd .. && \
-    git clone https://github.com/ArduPilot/ardupilot_gazebo && \
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    libgz-sim7-dev \
+    rapidjson-dev \
+    libcanberra-gtk-module \
+    libcanberra-gtk3-module \
+    python3-wxgtk4.0 \
+    libopencv-dev \
+    libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-libav \
+    gstreamer1.0-gl && \
     cd ardupilot_gazebo && \
-    export GZ_VERSION=gazren && \
+    export GZ_VERSION=garden && \
     sudo bash -c 'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/00-gazebo.list -O /etc/ros/rosdep/sources.list.d/00-gazebo.list' && \
     rosdep update && \
     rosdep resolve gz-garden && \
     rosdep install --from-paths src --ignore-src -y && \
+    mkdir -p build && \
+    cd build && \
+    cmake .. && \
+    make && \
     sudo ln -s /usr/bin/python3 /usr/bin/python && \
-    echo 'export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH}' >> ~/.bashrc && \
-    echo 'export GZ_SIM_RESOURCE_PATH=$HOME/ardupilot_gazebo/models:$HOME/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH}' >> ~/.bashrc
+    echo 'export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/ros2/humble_ws/src/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH}' >> ~/.bashrc && \
+    echo 'export GZ_SIM_RESOURCE_PATH=/home/ros2/humble_ws/src/ardupilot_gazebo/models:/home/ros2/humble_ws/src/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH}' >> ~/.bashrc
 
+
+# WORKDIR /home/${NEW_USER}/humble_ws
 
 
 
