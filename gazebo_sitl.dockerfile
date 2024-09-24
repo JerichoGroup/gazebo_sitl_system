@@ -118,6 +118,36 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     echo 'export GZ_SIM_RESOURCE_PATH=/home/ros2/humble_ws/src/ardupilot_gazebo/models:/home/ros2/humble_ws/src/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH}' >> ~/.bashrc
 
 
+## Install mavros
+
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    ros-humble-mavros  \
+    ros-humble-mavros-msgs \
+    ros-humble-libmavconn \
+    python3-vcstool \
+    python3-rosinstall-generator \
+    python3-osrf-pycommon && \
+    wget https://raw.githubusercontent.com/mavlink/mavros/ros2/mavros/scripts/install_geographiclib_datasets.sh && \
+    chmod a+x install_geographiclib_datasets.sh && \
+    sudo ./install_geographiclib_datasets.sh && \
+    rosinstall_generator --format repos mavlink | tee /tmp/mavlink.repos && \
+    rosinstall_generator --format repos --upstream mavros | tee -a /tmp/mavros.repos && \
+    cd .. && \
+    vcs import src < /tmp/mavlink.repos && \
+    cd src/mavlink && \
+    git switch -c 2024.6.6-1 && \
+    cd ../../ && \
+    vcs import src < /tmp/mavros.repos && \
+    cd src/mavros && \
+    git switch -c 2.8.0 && \
+    cd ../../ && \
+    rosdep install --from-paths src --ignore-src -y && \
+    sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh && \
+    export ROS_PYTHON_VERSION=3 && \
+    source /opt/ros/humble/setup.bash && \
+    colcon build --packages-select mavlink && \
+    colcon build --packages-select mavros   
+
 # WORKDIR /home/${NEW_USER}/humble_ws
 
 
