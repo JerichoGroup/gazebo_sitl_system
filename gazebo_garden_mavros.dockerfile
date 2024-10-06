@@ -13,6 +13,7 @@ USER ${NEW_USER}
 
 # Install basic apt dependencies.
 RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    # Basic
     curl \
     wget \
     pip \
@@ -23,6 +24,13 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     build-essential \
     python3-vcstools \
     python3-colcon-common-extensions \
+    # For mavros
+    ros-humble-mavros  \
+    ros-humble-mavros-msgs \
+    ros-humble-libmavconn \
+    python3-vcstool \
+    python3-rosinstall-generator \
+    python3-osrf-pycommon \
     && sudo apt-get clean \
     && sudo rm -rf /var/lib/apt/lists/*
 
@@ -34,47 +42,17 @@ RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/
     sudo apt-get clean && \
     sudo rm -rf /var/lib/apt/lists/*
 
-# Install Micro-XRCE-DDS-Gen.
-RUN cd ~ && \
-    git clone https://github.com/eProsima/Micro-XRCE-DDS-Gen.git && \
-    cd Micro-XRCE-DDS-Gen && \
-    git submodule init && \
-    git submodule update && \
-    ./gradlew assemble
+#COPY --chown=${NEW_USER} humble_ws /home/${NEW_USER}/humble_ws
+#COPY --chown=${NEW_USER} .gazenv /home/${NEW_USER}/.gazenv
+#COPY --chown=${NEW_USER} .ardupilot_env /home/${NEW_USER}/.ardupilot_env
+#COPY --chown=${NEW_USER} .bash_aliases /home/${NEW_USER}/.bash_aliases
 
-COPY --chown=${NEW_USER} humble_ws /home/${NEW_USER}/humble_ws
-COPY --chown=${NEW_USER} .gazenv /home/${NEW_USER}/.gazenv
-COPY --chown=${NEW_USER} .ardupilot_env /home/${NEW_USER}/.ardupilot_env
-COPY --chown=${NEW_USER} .bash_aliases /home/${NEW_USER}/.bash_aliases
 
-# Install ardupilot.
-#RUN source ~/.bash_aliases && \
-#    cd src && \
-#    git clone -b Copter-4.5 https://github.com/ArduPilot/ardupilot.git && \
-#    vcs import --recursive < ros2.repos.adjusted && \
-#    sudo apt update && \
-#    rosdep update && \
-#    cd .. && \
-#    rosdep install -y --from-paths src --ignore-src -r && \
-#    colcon build --packages-up-to ardupilot_dds_tests
-#
-## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf.
 
+RUN mkdir -p /home/${NEW_USER}/humble_ws/src
 WORKDIR /home/${NEW_USER}/humble_ws/src
 
-RUN wget https://raw.githubusercontent.com/ArduPilot/ardupilot_gz/main/ros2_gz.repos && \
-    vcs import --recursive < ros2.repos.all
-    # sudo apt update && \
-    # rosdep update
-    # cd .. && \
-    # rosdep install --rosdistro humble --from-paths src -i -r -y
-#     # colcon build --cmake-args -DBUILD_TESTING=ON
-
-
-## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf. - Roi
-RUN pip3 install pexpect future mavproxy
-
-# Install ardupilot gazebo apt depndencies.
+# Install basic apt dependencies for ardupilot gazebo plugin.
 RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     libgz-sim7-dev \
     rapidjson-dev \
@@ -86,10 +64,13 @@ RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
     libgstreamer-plugins-base1.0-dev \
     gstreamer1.0-plugins-bad \
     gstreamer1.0-libav \
-    gstreamer1.0-gl
+    gstreamer1.0-gl \
+    && sudo apt-get clean \
+    && sudo rm -rf /var/lib/apt/lists/*
 
 # Install ardupilot gazebo...
-RUN cd ardupilot_gazebo && \
+RUN git clone -b ros2 https://github.com/ArduPilot/ardupilot_gazebo.git && \
+    cd ardupilot_gazebo && \
     export GZ_VERSION=garden && \
     sudo bash -c 'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/00-gazebo.list -O /etc/ros/rosdep/sources.list.d/00-gazebo.list' && \
     rosdep update && \
@@ -103,15 +84,9 @@ RUN cd ardupilot_gazebo && \
     echo 'export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/ros2/humble_ws/src/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH}' >> ~/.bashrc && \
     echo 'export GZ_SIM_RESOURCE_PATH=/home/ros2/humble_ws/src/ardupilot_gazebo/models:/home/ros2/humble_ws/src/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH}' >> ~/.bashrc
 
-# Install mavros
-RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-    ros-humble-mavros  \
-    ros-humble-mavros-msgs \
-    ros-humble-libmavconn \
-    python3-vcstool \
-    python3-rosinstall-generator \
-    python3-osrf-pycommon && \
-    wget https://raw.githubusercontent.com/mavlink/mavros/ros2/mavros/scripts/install_geographiclib_datasets.sh && \
+# Install mavros.
+RUN sudo apt update && pip3 install pexpect future mavproxy
+RUN wget https://raw.githubusercontent.com/mavlink/mavros/ros2/mavros/scripts/install_geographiclib_datasets.sh && \
     chmod a+x install_geographiclib_datasets.sh && \
     sudo ./install_geographiclib_datasets.sh && \
     rosinstall_generator --format repos mavlink | tee /tmp/mavlink.repos && \
