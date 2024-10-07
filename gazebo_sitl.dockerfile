@@ -47,32 +47,18 @@ COPY --chown=${NEW_USER} .gazenv /home/${NEW_USER}/.gazenv
 COPY --chown=${NEW_USER} .ardupilot_env /home/${NEW_USER}/.ardupilot_env
 COPY --chown=${NEW_USER} .bash_aliases /home/${NEW_USER}/.bash_aliases
 
-# Install ardupilot.
-#RUN source ~/.bash_aliases && \
-#    cd src && \
-#    git clone -b Copter-4.5 https://github.com/ArduPilot/ardupilot.git && \
-#    vcs import --recursive < ros2.repos.adjusted && \
-#    sudo apt update && \
-#    rosdep update && \
-#    cd .. && \
-#    rosdep install -y --from-paths src --ignore-src -r && \
-#    colcon build --packages-up-to ardupilot_dds_tests
-#
-## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf.
-
 WORKDIR /home/${NEW_USER}/humble_ws/src
 
-RUN wget https://raw.githubusercontent.com/ArduPilot/ardupilot_gz/main/ros2_gz.repos && \
-    vcs import --recursive < ros2.repos.all
-    # sudo apt update && \
-    # rosdep update
-    # cd .. && \
-    # rosdep install --rosdistro humble --from-paths src -i -r -y
-#     # colcon build --cmake-args -DBUILD_TESTING=ON
+RUN vcs import --recursive < .repos
 
+RUN sudo apt-get update && \
+    pip3 install pexpect future mavproxy
 
-## Install ardupilot_gazebo & ardupilot_gz & SITL_Models & ros_gz & sdformat_urdf. - Roi
-RUN pip3 install pexpect future mavproxy
+# Compile ardupilot sitl...
+RUN cd ardupilot && \
+    ./waf distclean && \
+    ./waf configure --board sitl && \
+    ./waf copter
 
 # Install ardupilot gazebo apt depndencies.
 RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
@@ -104,7 +90,7 @@ RUN cd ardupilot_gazebo && \
     echo 'export GZ_SIM_RESOURCE_PATH=/home/ros2/humble_ws/src/ardupilot_gazebo/models:/home/ros2/humble_ws/src/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH}' >> ~/.bashrc
 
 # Install mavros
-RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+RUN sudo apt-get install -y --no-install-recommends \
     ros-humble-mavros  \
     ros-humble-mavros-msgs \
     ros-humble-libmavconn \

@@ -1,37 +1,33 @@
 ## 📚 About
 
-**gazebo_sitl_system** is a linux based simulation system for launching: 
+**gazebo_sitl_system** is a linux based simulation system for launching:
 
 - Gazebo (ignition) Garden.
-- Ardupilot sitl.
+- Ardupilot sitl (Copter-4.5).
 - Mavros (ros2 humble).
 
 ## 📝 Build docker images
+
 ```shell
-docker build -t gazebo_sitl:humble_garden -f gazebo_sitl.dockerfile .
-docker build -t gazebo:garden_mavros -f gazebo_garden_mavros.dockerfile .
-docker build -t sitl:Copter-4.0.5 -f sitl.dockerfile .
 docker-compose build
 ```
-## 🚀 Run simulation 
+
+## 📝 Setup simon
+1) Go simon_core project and:
+
 ```shell
-docker-compose up
+pip install .
 ```
 
-## tmp
-gazebo garden:
+2) Simon init in this directoryL
 ```shell
-gz gazebo -v4 iris_runway.sdf
-```
-sitl:
-```shell
-sim_vehicle.py -v ArduCopter -f gazebo-iris --model JSON --map --console
-```
-mavros:
-```shell
-ros2 launch mavros apm.launch fcu_url:=tcp://localhost gcs_url:=udp://@
+simon_init
 ```
 
+## 🚀 Run simulation
+```shell
+simon up
+```
 
 ## 🤝 Feedback and Contributions
 
