@@ -19,7 +19,7 @@ docker-compose build
 pip install .
 ```
 
-2) Simon init in this directoryL
+2) Simon init in this directory:
 ```shell
 simon_init
 ```
