@@ -12,11 +12,20 @@
 docker-compose build
 ```
 
+## Requirements
+1) Make sure you have gpu support for docker containers by running:
+```shell
+sudo docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi
+```
+If not, please install nvidia container toolkit.
+
+
 ## 📝 Setup simon
 1) Go simon_core project and:
 
 ```shell
 pip install .
+simon_install
 ```
 
 2) Simon init in this directory:

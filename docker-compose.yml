@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: mission_planner.dockerfile
-    image: mission_planner:1.0.0
+    image: mission_planner:1.3.74
     container_name: mission_planner
     environment:
       - DISPLAY=$DISPLAY
@@ -26,6 +26,7 @@ services:
       - DISPLAY=$DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+#      - ./humble_ws/src/fastdds.xml:~/humble/humble_ws/src/fastdds.xml
     tty: true
     stdin_open: true
     privileged: true

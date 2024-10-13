@@ -3,20 +3,22 @@
 
 entities: # Each entity assumes service and container name are the same in docker compose !
   gazebo_sitl:
-    image: gazebo_sitl:humble_garden
     compose: docker-compose.yml
     entry_points:
+      - command: bash
+        run_in_window: container_terminal
       - command: gz gazebo -v4 -r iris_runway.sdf
         run_in_window: gazebo
       - command: python3 /home/ros2/humble_ws/src/ardupilot/Tools/autotest/sim_vehicle.py -v ArduCopter -f gazebo-iris --model JSON --map --console
         run_in_window: sitl
       - command: ros2 launch mavros apm.launch fcu_url:=tcp://localhost gcs_url:=udp://@
         run_in_window: mavros
-    interactive: true
+      - command: ros2 topic echo /mavros/local_position/pose
+        run_in_window: /mavros/local_position/pose
+    interactive: false
     gpu: true
 
   mission_planner:
-    image: mission_planner:1.0.0
     compose: docker-compose.yml
     interactive: true
 
