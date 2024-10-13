@@ -13,6 +13,10 @@ entities: # Each entity assumes service and container name are the same in docke
         run_in_window: sitl
       - command: ros2 launch mavros apm.launch fcu_url:=tcp://localhost gcs_url:=udp://@
         run_in_window: mavros
+      - command: ros2 topic echo /mavros/state
+        run_in_window: mavros_state
+      - command: "ros2 service call /mavros/cmd/arming mavros_msgs/srv/CommandBool '{value: true}'"
+        run_in_window: mavros_arm
       - command: ros2 topic echo /mavros/local_position/pose
         run_in_window: /mavros/local_position/pose
     interactive: false

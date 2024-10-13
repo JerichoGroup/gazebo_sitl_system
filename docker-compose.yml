@@ -28,7 +28,7 @@ services:
       - DISPLAY=$DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-#      - ./humble_ws/src/fastdds.xml:~/humble/humble_ws/src/fastdds.xml
+      # - /home/amnon/clones/gazebo_sitl_system/humble_ws/src/fastdds.xml:/opt/ros/humble/share/mavros/fastdds.xml
     tty: true
     stdin_open: true
     privileged: true
