@@ -27,7 +27,7 @@ default_group: full_sim  # default group to run when using: simon up
 groups:
   full_sim:
     description: Simulation for iris drone using sitl + gazebo + mavros.
-    run_local: false  # run in network_mode: host
+#    run_local: false  # run in network_mode: host
     entities:
       - gazebo_sitl
       - mission_planner
