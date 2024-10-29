@@ -50,6 +50,8 @@ COPY --chown=${NEW_USER} .bash_aliases /home/${NEW_USER}/.bash_aliases
 WORKDIR /home/${NEW_USER}/humble_ws/src
 
 RUN vcs import --recursive < .repos
+# Pro gamer move bug fix for 'ardupilot_sitl' ros2 package.
+COPY --chown=${NEW_USER} wscript_modified /home/${NEW_USER}/humble_ws/src/ardupilot/libraries/AP_DDS/wscript
 
 RUN sudo apt-get update && \
     pip3 install pexpect future mavproxy
@@ -116,4 +118,8 @@ RUN sudo apt-get install -y --no-install-recommends \
     export ROS_PYTHON_VERSION=3 && \
     source /opt/ros/humble/setup.bash && \
     colcon build --packages-select mavlink && \
-    colcon build --packages-select mavros   
+    colcon build --packages-select mavros
+
+RUN source /home/${NEW_USER}/.bash_aliases && \
+    cd /home/${NEW_USER}/humble_ws && \
+    colcon build
