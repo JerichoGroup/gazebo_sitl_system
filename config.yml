@@ -7,7 +7,7 @@ entities: # Each entity assumes service and container name are the same in docke
     entry_points:
       - command: bash
         run_in_window: container_terminal
-      - command: ros2 launch ardupilot_gz_bringup iris_maze.launch.py
+      - command: ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761
         run_in_window: gazebo
       - command: ros2 topic echo /odometry
         run_in_window: odometry
@@ -24,7 +24,7 @@ entities: # Each entity assumes service and container name are the same in docke
 
   mission_planner:
     compose: docker-compose.yml
-    interactive: false  # remove tmux panel for mission-planner.
+    interactive: true
 
 default_group: full_sim  # default group to run when using: simon up
 

@@ -51,7 +51,9 @@ WORKDIR /home/${NEW_USER}/humble_ws/src
 
 RUN vcs import --recursive < .repos
 # Pro gamer move bug fix for 'ardupilot_sitl' ros2 package.
-COPY --chown=${NEW_USER} wscript_modified /home/${NEW_USER}/humble_ws/src/ardupilot/libraries/AP_DDS/wscript
+COPY --chown=${NEW_USER} bug_fixes/wscript_modified /home/${NEW_USER}/humble_ws/src/ardupilot/libraries/AP_DDS/wscript
+COPY --chown=${NEW_USER} bug_fixes/iris_lidar.launch.py /home/${NEW_USER}/humble_ws/src/ardupilot_gz/ardupilot_gz_bringup/launch/robots/iris_lidar.launch.py
+COPY --chown=${NEW_USER} bug_fixes/iris_maze.launch.py /home/${NEW_USER}/humble_ws/src/ardupilot_gz/ardupilot_gz_bringup/launch/iris_maze.launch.py
 
 RUN sudo apt-get update && \
     pip3 install pexpect future mavproxy
