@@ -21,7 +21,6 @@ services:
       context: .
       dockerfile: gazebo_sitl.dockerfile
     image: gazebo_sitl:humble_garden
-    command: bash
     container_name: gazebo_sitl
     network_mode: host
     environment:
