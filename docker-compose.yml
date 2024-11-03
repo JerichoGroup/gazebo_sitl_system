@@ -21,15 +21,12 @@ services:
       context: .
       dockerfile: gazebo_sitl.dockerfile
     image: gazebo_sitl:humble_garden
-    command: bash
     container_name: gazebo_sitl
     network_mode: host
     environment:
       - DISPLAY=$DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${SIMOM_INIT_PATH}/bug_fixes/iris_lidar.launch.py:/home/ros2/humble_ws/src/ardupilot_gz/ardupilot_gz_bringup/launch/robots/iris_lidar.launch.py
-      - ${SIMOM_INIT_PATH}/bug_fixes/iris_maze.launch.py:/home/ros2/humble_ws/src/ardupilot_gz/ardupilot_gz_bringup/launch/iris_maze.launch.py
     tty: true
     stdin_open: true
     privileged: true

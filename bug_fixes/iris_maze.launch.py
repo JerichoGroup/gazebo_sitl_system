@@ -68,8 +68,8 @@ def generate_launch_description():
             ]
         ),
         launch_arguments={
-            "out": LaunchConfiguration("out")
-        }
+            "out": LaunchConfiguration("out"),
+        }.items()
     )
 
     # Gazebo.
