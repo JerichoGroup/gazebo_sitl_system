@@ -19,8 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN mkdir -p /Mission-Planner && \
     cd /Mission-Planner && \
-    wget https://firmware.ardupilot.org/Tools/MissionPlanner/archive/MissionPlanner-1.3.74.zip && \
-    unzip MissionPlanner-1.3.74.zip -d MissionPlanner
+    wget https://firmware.ardupilot.org/Tools/MissionPlanner/archive/MissionPlanner-1.3.75.zip && \
+    unzip MissionPlanner-1.3.75.zip -d MissionPlanner
 
 WORKDIR /Mission-Planner/MissionPlanner
 
