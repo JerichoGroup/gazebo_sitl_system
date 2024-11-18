@@ -23,11 +23,6 @@ entities: # Each entity assumes service and container name are the same in docke
 default_group: nablus  # default group to run when using: simon up
 
 groups:
-  full_sim:
-    description: Simulation for iris drone using sitl + gazebo + mavros.
-    entities:
-      - gazebo_sitl
-      - mission_planner
   nablus: 
     description: Simulation for iris drone using sitl + gazebo + mavros on nablus omniverse map
     entities:
