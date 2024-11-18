@@ -7,8 +7,6 @@ entities: # Each entity assumes service and container name are the same in docke
     entry_points:
       - command: bash
         run_in_window: container_terminal
-      - command: ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761
-        run_in_window: gazebo
       - command: ros2 topic echo /odometry
         run_in_window: odometry
       - command: ros2 launch mavros apm.launch fcu_url:=udp://127.0.0.1:5761@ gcs_url:=udp://@
@@ -22,7 +20,7 @@ entities: # Each entity assumes service and container name are the same in docke
     compose: docker-compose.yml
     interactive: false
 
-default_group: full_sim  # default group to run when using: simon up
+default_group: nablus  # default group to run when using: simon up
 
 groups:
   full_sim:
@@ -30,3 +28,21 @@ groups:
     entities:
       - gazebo_sitl
       - mission_planner
+  nablus: 
+    description: Simulation for iris drone using sitl + gazebo + mavros on nablus omniverse map
+    entities:
+      - gazebo_sitl
+      - mission_planner
+    group_entry_points:
+      gazebo_sitl:
+        - command: ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="32.22481,35.25621,499.02000, 0" console:=True
+          run_in_window: "gazebo"
+  telem: 
+    description: Simulation for iris drone using sitl + gazebo + mavros on telem omniverse map
+    entities:
+      - gazebo_sitl
+      - mission_planner
+    group_entry_points:
+      gazebo_sitl:
+        - command: ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="33.253,35.52472,582.54, 0" console:=True
+          run_in_window: "gazebo"
