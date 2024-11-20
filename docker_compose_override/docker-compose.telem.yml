@@ -1,0 +1,5 @@
+version: '3.3'
+
+services:
+  gazebo_sitl:
+    command: bash -ic 'ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="33.253,35.52472,582.54,0" console:=True'

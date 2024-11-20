@@ -22,6 +22,7 @@ services:
       dockerfile: gazebo_sitl.dockerfile
     image: gazebo_sitl:humble_garden
     container_name: gazebo_sitl
+    command: bash -ic 'ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="32.22481,35.25621,499.02000,0" console:=True'
     network_mode: host
     environment:
       - DISPLAY=$DISPLAY
