@@ -13,12 +13,12 @@ entities: # Each entity assumes service and container name are the same in docke
         run_in_window: mavros
       - command: ros2 topic echo /mavros/local_position/pose
         run_in_window: mavros_pose
-    interactive: false
+    interactive: true
     gpu: true
 
   mission_planner:
     compose: docker-compose.yml
-    interactive: false
+    interactive: true
 
 default_group: nablus  # default group to run when using: simon up
 
@@ -34,10 +34,7 @@ groups:
           run_in_window: "gazebo"
   telem: 
     description: Simulation for iris drone using sitl + gazebo + mavros on telem omniverse map
+    compose_override: docker_compose_override/docker-compose.telem.yml
     entities:
       - gazebo_sitl
       - mission_planner
-    group_entry_points:
-      gazebo_sitl:
-        - command: ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="33.253,35.52472,582.54, 0" console:=True
-          run_in_window: "gazebo"
