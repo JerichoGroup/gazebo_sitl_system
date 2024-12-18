@@ -28,7 +28,10 @@ groups:
     entities:
       - gazebo_sitl
       - mission_planner
-    
+    group_entry_points:
+      gazebo_sitl:
+        - command: ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="32.23229,35.23840,428.88000, 0" console:=True
+          run_in_window: "gazebo"
   telem: 
     description: Simulation for iris drone using sitl + gazebo + mavros on telem omniverse map
     compose_override: docker_compose_override/docker-compose.telem.yml
