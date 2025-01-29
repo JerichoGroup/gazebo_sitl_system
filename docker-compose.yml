@@ -27,7 +27,7 @@ services:
       - DISPLAY=$DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /home/user/clones/gazebo_sitl_system/config/gazebo-iris.parm:/home/ros2/humble_ws/install/ardupilot_sitl/share/ardupilot_sitl/config/default_params/gazebo-iris.parm 
+      - ./config/gazebo-iris.parm:/home/ros2/humble_ws/install/ardupilot_sitl/share/ardupilot_sitl/config/default_params/gazebo-iris.parm 
     tty: true
     stdin_open: true
     privileged: true
