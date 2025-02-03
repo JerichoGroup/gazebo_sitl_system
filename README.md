@@ -38,6 +38,10 @@ simon_init
 simon up
 ```
 
+## Configurations
+in docker-compose.yml -> gazebo_sitl -> volumes:
+We added a gazebo-iris.parm file to stabilise the gimbal, this overrides the basic ardupilot parameters.
+
 ## 🤝 Feedback and Contributions
 
 For any issue regarding launching the simulation, please feel free to contact us :)
