@@ -22,13 +22,28 @@ services:
       dockerfile: gazebo_sitl.dockerfile
     image: gazebo_sitl:humble_garden
     container_name: gazebo_sitl
-    command: bash -ic 'ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="32.22481,35.25621,499.02000,0" console:=True'
+    command: bash -ic 'ros2 launch ardupilot_gz_bringup iris_maze.launch.py out:=udp:127.0.0.1:5761 home:="32.23229,35.23840,428.88000,0" console:=True'
     network_mode: host
     environment:
       - DISPLAY=$DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ./config/gazebo-iris.parm:/home/ros2/humble_ws/install/ardupilot_sitl/share/ardupilot_sitl/config/default_params/gazebo-iris.parm 
+    tty: true
+    stdin_open: true
+    privileged: true
+
+  qgc:
+    build:
+      context: .
+      dockerfile: qgc.dockerfile
+    image: qgc-ubuntu-docker:latest
+    container_name: qgc
+    network_mode: host
+    environment:
+      - DISPLAY=$DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     tty: true
     stdin_open: true
     privileged: true
