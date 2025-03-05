@@ -10,15 +10,13 @@ entities: # Each entity assumes service and container name are the same in docke
       - command: ros2 topic echo /odometry
         run_in_window: odometry
       - command: ros2 launch mavros apm.launch fcu_url:=udp://127.0.0.1:5761@ gcs_url:=udp://@
-        run_in_window: mavros
-      - command: ros2 topic echo /mavros/local_position/pose
-        run_in_window: mavros_pose
+#        run_in_window: mavros
     interactive: true
     gpu: true
 
   mission_planner:
     compose: docker-compose.yml
-    interactive: true
+    interactive: false
 
   qgc:
     compose: docker-compose.yml
@@ -31,8 +29,8 @@ groups:
     description: Simulation for iris drone using sitl + gazebo + mavros on nablus omniverse map
     entities:
       - gazebo_sitl
-#      - mission_planner
-      - qgc
+      - mission_planner
+#      - qgc
 
   telem:
     description: Simulation for iris drone using sitl + gazebo + mavros on telem omniverse map

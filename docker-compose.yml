@@ -29,6 +29,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ./config/gazebo-iris.parm:/home/ros2/humble_ws/install/ardupilot_sitl/share/ardupilot_sitl/config/default_params/gazebo-iris.parm 
+#      - ./.bash_aliases:/home/ros2/.bash_aliases
     tty: true
     stdin_open: true
     privileged: true
@@ -37,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: qgc.dockerfile
-    image: qgc-ubuntu-docker:latest
+    image: qgc:latest
     container_name: qgc
     network_mode: host
     environment:
