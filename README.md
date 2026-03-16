@@ -44,4 +44,4 @@ We added a gazebo-iris.parm file to stabilise the gimbal, this overrides the bas
 
 ## 🤝 Feedback and Contributions
 
-For any issue regarding launching the simulation, please feel free to contact us :)
+For any issue regarding launching the simulation, please feel free to contact us
